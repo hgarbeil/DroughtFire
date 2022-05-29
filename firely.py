@@ -72,9 +72,13 @@ def update_map(stateval) :
 	nm_lat = nmind.at[0,'Lat']
 	nm_lon = nmind.at[0,'Lon']
 
-	df_new['b10'] = df_new['brightness']*10.
+
+	df_new.drop(df_new.index[df_new['confidence']!='high'],inplace=True)
+	df_new.loc[df_new.brightness>15000,'brightness']=15000
+	df_new['b10']=df_new['brightness']*5.
 	fig = px.choropleth_mapbox(mydroughts.df_droughts, geojson=counties, locations='FIPSNew',
 					   color='DSCI', color_continuous_scale="Viridis",
+					   range_color=[0,1500],
 					   center={"lat": nm_lat, "lon": nm_lon}, zoom=5, hover_name='County',
 					   hover_data=['ValidEnd', 'D4', 'D4'])
 	fig.update_layout(mapbox_style="white-bg",
@@ -83,8 +87,9 @@ def update_map(stateval) :
 			lat='latitude',
 			lon='longitude',
 			color='b10',
+			size="b10", color_continuous_scale=px.colors.sequential.Rainbow,
 			#color_discrete_sequence='agsunset',
-			color_discrete_sequence=["red", "green", "blue", "goldenrod", "magenta"],
+			#color_discrete_sequence=["red", "green", "blue", "goldenrod", "magenta"],
 			hover_data=['confidence','brightness']
 	)
 	fig.add_trace(fig2.data[0])
