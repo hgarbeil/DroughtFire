@@ -51,11 +51,17 @@ app.layout = html.Div([
 	html.Div(
 	style={'width':"85%",'display':'inline-block'},
 	children=[
+	html.Pre(""),
+	dash.dcc.Checklist(id='layer-checklist',options=['Droughts','VIIRS Fires','MODIS Fires','US Capitals'],
+		value=['Droughts', 'VIIRS Fires', 'MODIS Fires'],style={'display':'inline-block','width':'35%'}),
+	html.Button ("SUBMIT", id='update-button',n_clicks=0,style={'display':'inline-block','width':'20%'}),
+	html.Pre(""),
 	dash.dcc.Dropdown(
 		id='dd_locale',
 		#options=[{'label':"New Mexico", 'value':'New Mexico'}],
 		options=[{'label':i['State'],'value':i['State']} for j,i in statecaps.iterrows()],
 		value='New Mexico'),
+
 	html.Div([
 		dash.dcc.Graph(id='my_map', figure=fig)
 	])
@@ -64,10 +70,12 @@ app.layout = html.Div([
 
 @app.callback (
 	[Output(component_id='my_map', component_property='figure')],
-	[Input(component_id='dd_locale', component_property='value')]
+	[Input(component_id='dd_locale', component_property='value')],
+	[Input(component_id='update-button', component_property='n_clicks')],
+	[State(component_id='layer-checklist',component_property='value')]
 )
 
-def update_map(stateval) :
+def update_map(stateval,n_clicks, checkvals) :
 	nmind = statecaps[statecaps['State']==stateval].reset_index()
 	nm_lat = nmind.at[0,'Lat']
 	nm_lon = nmind.at[0,'Lon']
@@ -76,25 +84,41 @@ def update_map(stateval) :
 	df_new.drop(df_new.index[df_new['confidence']!='high'],inplace=True)
 	df_new.loc[df_new.brightness>15000,'brightness']=15000
 	df_new['b10']=df_new['brightness']*5.
-	fig = px.choropleth_mapbox(mydroughts.df_droughts, geojson=counties, locations='FIPSNew',
+	df_new['size']=.1
+	df_new['colors']='rgb(255,255,200)'
+	if 'Droughts' in checkvals :
+		fig = px.choropleth_mapbox(mydroughts.df_droughts, geojson=counties, locations='FIPSNew',
 					   color='DSCI', color_continuous_scale="Viridis",
 					   range_color=[0,1500],
 					   center={"lat": nm_lat, "lon": nm_lon}, zoom=5, hover_name='County',
 					   hover_data=['ValidEnd', 'D4', 'D4'])
-	fig.update_layout(mapbox_style="white-bg",
+
+		fig.update_layout(mapbox_style="white-bg",
 					  mapbox_zoom=5)
-	fig2=px.scatter_mapbox(df_new,
+
+		fig2=px.scatter_mapbox(df_new,
 			lat='latitude',
 			lon='longitude',
-			color='b10',
-			size="b10", color_continuous_scale=px.colors.sequential.Rainbow,
+			color='colors',
+			size='size',
+			size_max=5,
 			#color_discrete_sequence='agsunset',
 			#color_discrete_sequence=["red", "green", "blue", "goldenrod", "magenta"],
 			hover_data=['confidence','brightness']
-	)
-	fig.add_trace(fig2.data[0])
+		)
+		fig.add_trace(fig2.data[0])
 
+	else :
+		fig = px.scatter_mapbox(df_new, lat='latitude', lon='longitude', color='brightness', zoom=4,
+								center=dict(lat=nm_lat, lon=nm_lon), height=800,
+								hover_data=['latitude', 'longitude', 'confidence', 'nti', 'brightness_lwir'])
+		fig.update_layout(mapbox_style="open-street-map")
 
+	# fig2.add_trace(px.scatter_mapbox(df_new, lat='latitude',
+	# 		lon='longitude',
+	# 		mode='markers',
+	# 		color='rgb(255,255,255',
+	# 		size=12))
 
 
 	return ([fig])
