@@ -37,7 +37,7 @@ df_new = pd.concat([df,df_viirs],axis=0)
 
 fig = px.scatter_mapbox(df_new, lat='latitude',lon='longitude', color='brightness',zoom=4,
 						center=dict(lat=nm_lat,lon=nm_lon),height=800,
-						hover_data=['latitude','longitude','confidence', 'nti','brightness_lwir'])
+						hover_data=['latitude','longitude','iconfidence', 'nti','brightness_lwir'])
 
 fig.update_layout(mapbox_style="open-street-map")
 #fig.show()
@@ -74,13 +74,17 @@ app.layout = html.Div([
 )
 
 def update_map(stateval,n_clicks, checkvals) :
+	fdata = firedata()
+	mydroughts = droughts()
+	df, df_viirs = fdata.get_dataframes()
+
 	nmind = statecaps[statecaps['State']==stateval].reset_index()
 	nm_lat = nmind.at[0,'Lat']
 	nm_lon = nmind.at[0,'Lon']
 
 	# make empy data frame if neither viirs or modis is checked
 	if ('MODIS Fires' not in checkvals and 'VIIRS Fires' not in checkvals):
-		df_new = pd.DataFrame(columns=['latitude', 'longitude', 'confidence', 'nti', 'brightness_lwir','colors'])
+		df_new = pd.DataFrame(columns=['latitude', 'longitude', 'iconfidence', 'nti', 'brightness_lwir','colors'])
 	else :
 		if ('MODIS Fires' in checkvals and 'VIIRS Fires' in checkvals) :
 			df_new = pd.concat([df, df_viirs])
@@ -91,7 +95,7 @@ def update_map(stateval,n_clicks, checkvals) :
 
 
 
-	df_new.drop(df_new.index[df_new['confidence']!='high'],inplace=True)
+	df_new.drop(df_new.index[df_new['iconfidence']!='high'],inplace=True)
 	df_new.loc[df_new.brightness>15000,'brightness']=15000
 	df_new['b10']=df_new['brightness']*5.
 	df_new['size']=.1
@@ -114,14 +118,14 @@ def update_map(stateval,n_clicks, checkvals) :
 			size_max=5,
 			#color_discrete_sequence='agsunset',
 			#color_discrete_sequence=["red", "green", "blue", "goldenrod", "magenta"],
-			hover_data=['confidence','brightness']
+			hover_data=['iconfidence','brightness']
 		)
 		fig.add_trace(fig2.data[0])
 
 	else :
 		fig = px.scatter_mapbox(df_new, lat='latitude', lon='longitude', color='brightness', zoom=4,
 								center=dict(lat=nm_lat, lon=nm_lon), height=800,
-								hover_data=['latitude', 'longitude', 'confidence', 'nti', 'brightness_lwir'])
+								hover_data=['latitude', 'longitude', 'iconfidence', 'nti', 'brightness_lwir'])
 		fig.update_layout(mapbox_style="open-street-map")
 
 	# fig2.add_trace(px.scatter_mapbox(df_new, lat='latitude',

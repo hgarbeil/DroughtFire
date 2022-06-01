@@ -13,13 +13,14 @@ class firedata() :
         df = pd.read_csv(s)
         df_viirs = pd.read_csv(s_viirs)
         self.df = df.rename(columns={"bright_t31": "brightness_lwir"})
-        self.df_viirs = df_viirs.rename(columns={"bright_ti4": "brightness", "bright_ti5": "brightness_lwir"})
+        self.df['iconfidence']=self.df['confidence']
+        self.df.loc[self.df.confidence > 75, 'iconfidence'] = 'high'
+        self.df.loc[self.df.confidence<75,'iconfidence']='low'
+        self.df_viirs = df_viirs.rename(columns={"confidence":"iconfidence","bright_ti4": "brightness", "bright_ti5": "brightness_lwir"})
+
         print(df.info())
         self.calc_nti()
 
-        ### current drought map
-        dd= pd.read_csv('https://droughtmonitor.unl.edu/DmData/GISData.aspx?mode=table&aoi=county&date=')
-        dd.info()
 
     def get_dataframes(self):
         return (self.df, self.df_viirs)
