@@ -25,7 +25,6 @@ fdata = firedata()
 mydroughts = droughts()
 df,df_viirs = fdata.get_dataframes()
 
-print (df_viirs.info())
 #df = pd.read_csv("")
 #df['geoid'] = df['geoid'].str[4:]
 lat=df['latitude']
@@ -35,7 +34,6 @@ nm_lat = nmind.at[30,'Lat']
 nm_lon = nmind.at[30,'Lon']
 
 df_new = pd.concat([df,df_viirs],axis=0)
-print(df_new.info())
 
 fig = px.scatter_mapbox(df_new, lat='latitude',lon='longitude', color='brightness',zoom=4,
 						center=dict(lat=nm_lat,lon=nm_lon),height=800,
@@ -79,6 +77,18 @@ def update_map(stateval,n_clicks, checkvals) :
 	nmind = statecaps[statecaps['State']==stateval].reset_index()
 	nm_lat = nmind.at[0,'Lat']
 	nm_lon = nmind.at[0,'Lon']
+
+	# make empy data frame if neither viirs or modis is checked
+	if ('MODIS Fires' not in checkvals and 'VIIRS Fires' not in checkvals):
+		df_new = pd.DataFrame(columns=['latitude', 'longitude', 'confidence', 'nti', 'brightness_lwir','colors'])
+	else :
+		if ('MODIS Fires' in checkvals and 'VIIRS Fires' in checkvals) :
+			df_new = pd.concat([df, df_viirs])
+		if ('MODIS Fires' in checkvals and 'VIIRS Fires' not in checkvals) :
+			df_new = df.copy()
+		if ('VIIRS Fires' in checkvals and 'MODIS Fires' not in checkvals):
+			df_new = df_viirs.copy()
+
 
 
 	df_new.drop(df_new.index[df_new['confidence']!='high'],inplace=True)
