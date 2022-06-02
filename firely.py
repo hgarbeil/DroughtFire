@@ -102,8 +102,8 @@ def update_map(stateval,n_clicks, checkvals) :
 	df_new['colors']='rgb(255,255,200)'
 	if 'Droughts' in checkvals :
 		fig = px.choropleth_mapbox(mydroughts.df_droughts, geojson=counties, locations='FIPSNew',
-					   color='DSCI', color_continuous_scale="Viridis",
-					   range_color=[0,1500],
+					   color='PctArea', color_continuous_scale="Viridis",
+					   range_color=[0,100],
 					   center={"lat": nm_lat, "lon": nm_lon}, zoom=5, hover_name='County',
 					   hover_data=['ValidEnd', 'D4', 'D4'])
 

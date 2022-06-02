@@ -6,10 +6,10 @@ class firedata() :
     ### the constructor loads up the current MODIS and VIIRS into a dataframe
     def __init__(self):
         ### get the modis data
-        s = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.csv"
+        s = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_USA_contiguous_and_Hawaii_7d.csv"
 
         ### get the viirs data
-        s_viirs = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_USA_contiguous_and_Hawaii_24h.csv"
+        s_viirs = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_USA_contiguous_and_Hawaii_7d.csv"
         df = pd.read_csv(s)
         df_viirs = pd.read_csv(s_viirs)
         self.df = df.rename(columns={"bright_t31": "brightness_lwir"})

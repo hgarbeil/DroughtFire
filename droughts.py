@@ -15,14 +15,14 @@ class droughts():
         self.df_droughts = pd.read_csv('https://droughtmonitor.unl.edu/DmData/GISData.aspx?mode=table&aoi=county&date=')
         newfips=self.df_droughts['FIPS'].copy()
         self.df_droughts['FIPSNew'] = newfips.map("{:05}".format)
-        self.calc_DSCI()
+        self.calc_PctArea()
 
     ###
     # https://droughtmonitor.unl.edu/About/AbouttheData/DSCI.aspx
-    def calc_DSCI (self) :
-        self.df_droughts['DSCI']=self.df_droughts['D0']+2*self.df_droughts['D1']+3*self.df_droughts['D2'] + 4*self.df_droughts['D3'] + 5*self.df_droughts['D4']
-        #self.df_droughts['DSCI'].index(self.df_droughts[self.df_droughts['DSCI']]=15000
-        self.df_droughts.loc[self.df_droughts.DSCI > 15000, 'DSCI'] = 15000
+    def calc_PctArea (self) :
+        self.df_droughts['PctArea']=self.df_droughts['D0']+self.df_droughts['D1']+self.df_droughts['D2'] + self.df_droughts['D3'] + self.df_droughts['D4']
+        #self.df_droughts['PctArea'].index(self.df_droughts[self.df_droughts['PctArea']]=15000
+        #self.df_droughts.loc[self.df_droughts.PctArea > 15000, 'PctArea'] = 15000
 
 
 
