@@ -18,7 +18,7 @@ with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-c
 app = dash.Dash() 
 
 
-statecaps = pd.read_csv("/Users/hg1/data/us-state-capitals.csv")
+statecaps = pd.read_csv("/Users/hg/pydev/DroughtFire/us-state-capitals.csv")
 statecaps.info()
 
 fdata = firedata()
